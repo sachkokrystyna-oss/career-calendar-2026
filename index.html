@@ -3,541 +3,616 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CYBERPUNK CAREER 2026</title>
+    <title>Карʼєрний Адвент-Календар 2026</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --bg-color: #050505;
-            --panel-bg: #0a0a0a;
-            --neon-blue: #00f3ff;
-            --neon-pink: #ff0055;
-            --neon-yellow: #ffee00;
-            --neon-green: #00ff9d;
-            --text-main: #e0e0e0;
-            --text-dim: #707070;
-            --border-width: 2px;
+            /* Palette: Royal Emerald (Default) */
+            --bg-deep: #14211C;
+            --bg-card: #1D2E28;
+            --text-cream: #F2EFE9;
+            --text-muted: #8F9E96;
+            --gold-main: #D4AF37;
+            --gold-light: #F9E6A5;
+            --border: #2F453C;
+            --error-color: #ff6b6b;
+            
+            /* Transition variables */
+            --transition-speed: 0.4s;
+        }
+
+        /* --- GOLD MODE (Activated after Finale) --- */
+        body.gold-mode {
+            --bg-deep: #C5A059;       /* Rich Gold Background */
+            --bg-card: #0F1A15;       /* Dark Contrast Cards */
+            --text-cream: #0F1A15;    /* Dark Text */
+            --text-muted: #2F453C; 
+            --gold-main: #F2EFE9;     /* Light Cream Accents */
+            --border: #8C6B15;
+            --input-bg: rgba(255,255,255,0.1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            cursor: default;
         }
 
         body {
-            font-family: 'Share Tech Mono', monospace; /* Технічний шрифт для тіла */
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-cream);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             overflow-x: hidden;
             position: relative;
+            transition: background-color 2s ease, color 1s ease;
         }
 
-        /* --- Cyberpunk Background Effects --- */
-        
-        /* Grid Background */
-        body::before {
-            content: "";
+        /* 1. EDITORIAL BACKGROUND */
+        .editorial-bg {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Playfair Display', serif;
+            font-size: 35vw;
+            color: rgba(255, 255, 255, 0.02);
+            z-index: 0;
+            pointer-events: none;
+            line-height: 1;
+            white-space: nowrap;
+            transition: all 2s ease;
+        }
+
+        body.gold-mode .editorial-bg {
+            color: rgba(0, 0, 0, 0.05);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        /* 2. SPOTLIGHT EFFECT */
+        .spotlight {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -2;
+            background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), rgba(255, 255, 255, 0.06) 0%, transparent 40%);
             pointer-events: none;
+            z-index: 1;
         }
 
-        /* Scanline Overlay */
-        .scanlines {
+        /* NOISE TEXTURE */
+        .noise {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
-            background-size: 100% 4px;
-            z-index: 9999;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
             pointer-events: none;
-            opacity: 0.6;
+            z-index: 2;
         }
 
-        /* Vignette */
-        .vignette {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle, transparent 60%, black 100%);
-            z-index: -1;
-            pointer-events: none;
+        /* --- UI LAYER --- */
+        header, main, .modal-overlay, .finale-overlay {
+            z-index: 10;
+            position: relative;
         }
 
-        /* --- Header --- */
         header {
             text-align: center;
-            padding: 50px 20px;
+            padding: 100px 20px 60px;
             max-width: 800px;
             width: 100%;
-            position: relative;
+            animation: fadeIn 1.5s ease forwards;
         }
 
         h1 {
-            font-family: 'Montserrat', sans-serif; /* Ваш запит */
-            font-size: 3rem;
-            font-weight: 900;
-            color: #fff;
-            text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            position: relative;
-            text-shadow: 2px 2px 0px var(--neon-pink), -2px -2px 0px var(--neon-blue);
-            animation: glitch-anim 3s infinite alternate-reverse;
-        }
-
-        @keyframes glitch-anim {
-            0% { text-shadow: 2px 2px 0px var(--neon-pink), -2px -2px 0px var(--neon-blue); }
-            20% { text-shadow: -2px 2px 0px var(--neon-pink), 2px -2px 0px var(--neon-blue); }
-            40% { text-shadow: 2px -2px 0px var(--neon-pink), -2px 2px 0px var(--neon-blue); }
-            100% { text-shadow: 2px 2px 0px var(--neon-pink), -2px -2px 0px var(--neon-blue); }
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem; /* Трохи зменшив, щоб вмістити довгий заголовок */
+            font-weight: 500;
+            color: var(--text-cream);
+            margin-bottom: 15px;
+            letter-spacing: -0.02em;
+            text-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: color 1s ease;
+            line-height: 1.2;
         }
 
         p.subtitle {
-            color: var(--neon-blue);
-            font-size: 1.2rem;
-            margin-bottom: 40px;
+            font-family: 'Lato', sans-serif;
+            color: var(--gold-main);
+            font-size: 0.9rem;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+            transition: color 1s ease;
         }
 
-        /* --- Cyber Progress Bar --- */
-        .progress-wrapper {
+        /* Progress Bar */
+        .progress-container {
             width: 100%;
-            border: 1px solid var(--text-dim);
-            padding: 5px;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            background: rgba(0,0,0,0.5);
-            margin-bottom: 10px;
-        }
-
-        .progress-bar {
-            height: 15px;
-            background: var(--neon-yellow);
-            width: 0%;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px var(--neon-yellow);
+            max-width: 200px;
+            margin: 0 auto;
             position: relative;
         }
 
-        /* Stripes on progress bar */
-        .progress-bar::after {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 5px,
-                rgba(0,0,0,0.8) 5px,
-                rgba(0,0,0,0.8) 10px
-            );
+        .progress-line-bg {
+            width: 100%; height: 1px; background: var(--border);
+            transition: background 1s ease;
+        }
+
+        .progress-line-fill {
+            height: 1px; background: var(--gold-main); width: 0%;
+            transition: width 1s cubic-bezier(0.22, 1, 0.36, 1), background 1s ease;
+            box-shadow: 0 0 15px var(--gold-main);
         }
 
         .progress-text {
-            font-size: 0.9rem;
-            color: var(--neon-blue);
-            text-align: right;
-            margin-top: 5px;
-            font-weight: bold;
+            font-family: 'Playfair Display', serif; font-style: italic;
+            color: var(--text-muted); margin-top: 10px; font-size: 0.9rem;
+            transition: color 1s ease;
         }
 
-        /* --- Grid System --- */
+        /* GRID */
         .calendar-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 25px;
-            max-width: 1100px;
-            width: 95%;
-            padding-bottom: 80px;
+            max-width: 1000px;
+            width: 90%;
+            padding-bottom: 100px;
         }
 
-        /* --- Cyber Cards --- */
+        /* CARD DESIGN */
         .day-card {
-            background-color: var(--panel-bg);
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            background-color: var(--bg-card);
+            aspect-ratio: 0.8;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            border: 1px solid var(--border);
+            position: relative; overflow: hidden;
             cursor: pointer;
-            position: relative;
-            transition: all 0.2s ease;
-            
-            /* Chamfered Edges (зрізані кути) */
-            clip-path: polygon(
-                20px 0, 100% 0, 
-                100% calc(100% - 20px), calc(100% - 20px) 100%, 
-                0 100%, 0 20px
-            );
-            
-            border-left: 2px solid var(--text-dim);
-            border-right: 2px solid var(--text-dim);
+            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 2s ease;
+            opacity: 0; transform: translateY(30px);
+            animation: cascadeReveal 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
-        /* Decorative corners imitation via ::before/after is hard with clip-path, so we use box-shadows or borders inside */
-        .day-card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            border-top: 2px solid var(--text-dim);
-            border-bottom: 2px solid var(--text-dim);
-            z-index: 1;
-        }
+        @keyframes cascadeReveal { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { to { opacity: 1; } }
 
         .day-card:hover {
-            transform: translateY(-2px);
-            background-color: #1a1a1a;
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+            transform: translateY(-8px);
+            border-color: var(--gold-main);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
 
-        .day-card:hover .day-number {
-            color: var(--neon-blue);
-            text-shadow: 0 0 10px var(--neon-blue);
+        /* SHEEN EFFECT */
+        .day-card::before {
+            content: ""; position: absolute; top: 0; left: -150%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), rgba(255, 255, 255, 0.4), rgba(212, 175, 55, 0.2), transparent);
+            transform: skewX(-25deg); transition: none;
         }
-        
-        .day-card:hover::before {
-            border-color: var(--neon-blue);
-        }
+        .day-card:hover::before { left: 150%; transition: 0.7s ease-in-out; }
 
         .day-number {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 900;
-            color: var(--text-main);
-            z-index: 2;
-            transition: color 0.3s;
+            font-family: 'Playfair Display', serif; font-size: 2.5rem;
+            color: var(--text-cream); z-index: 2;
+            transition: color 1s ease;
         }
 
         .day-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.8rem;
-            color: var(--neon-pink);
-            margin-top: 5px;
-            text-transform: uppercase;
-            z-index: 2;
+            font-size: 0.6rem; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 2px;
+            margin-top: 10px; z-index: 2; transition: color 0.3s;
         }
 
-        /* Completed State */
+        .day-card:hover .day-label { color: var(--gold-main); }
+
         .day-card.completed {
-            background: rgba(0, 255, 157, 0.05);
+            background-color: #0d1612; border-color: #3e5c50;
+        }
+        body.gold-mode .day-card.completed {
+             background-color: #050a08; border-color: var(--gold-main);
         }
 
-        .day-card.completed .day-number {
-            color: var(--neon-green);
-            text-shadow: 0 0 10px var(--neon-green);
-        }
-
+        .day-card.completed .day-number { color: var(--gold-main); opacity: 0.5; }
         .day-card.completed::after {
-            content: "SYNCED";
-            position: absolute;
-            bottom: 10px;
-            font-size: 0.7rem;
-            background: var(--neon-green);
-            color: #000;
-            padding: 2px 5px;
-            font-weight: bold;
-            z-index: 3;
+            content: "✦"; position: absolute; bottom: 10px;
+            color: var(--gold-main); font-size: 1.2rem;
         }
 
-        /* --- Modal (Pop-up) --- */
+        /* MODAL */
         .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.85);
-            backdrop-filter: blur(5px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 10000;
-            padding: 20px;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(10, 18, 15, 0.6);
+            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.5s ease;
+            z-index: 100;
         }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
 
         .modal-content {
-            background-color: #0a0a0a;
-            width: 100%;
-            max-width: 650px;
-            max-height: 90vh;
-            border: 1px solid var(--neon-blue);
-            box-shadow: 0 0 30px rgba(0, 243, 255, 0.15);
-            padding: 40px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
-            
-            /* Tech look */
-            background-image: 
-                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
+            background: linear-gradient(145deg, rgba(29, 46, 40, 0.95), rgba(20, 33, 28, 0.98));
+            width: 90%; max-width: 600px; max-height: 90vh;
+            border: 1px solid var(--border); padding: 50px;
+            box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+            overflow-y: auto; position: relative;
+            transform: scale(0.95); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+
+        .modal-header h2 {
+            font-family: 'Playfair Display', serif; font-size: 2.5rem;
+            color: var(--gold-main); border-bottom: 1px solid var(--border);
+            padding-bottom: 20px; margin-bottom: 20px;
         }
 
-        /* Modal Corner Accents */
-        .modal-content::after {
-            content: "";
-            position: absolute;
-            top: -1px; left: -1px; right: -1px; bottom: -1px;
-            border: 2px solid transparent;
-            /* Gradient borders workaround */
-            background: linear-gradient(45deg, var(--neon-blue), transparent 20%, transparent 80%, var(--neon-pink)) border-box; 
-            -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
+        .modal-day-badge {
+            font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+            color: var(--text-muted); margin-bottom: 10px; display: block;
         }
 
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 2rem;
-            color: var(--text-dim);
-            cursor: pointer;
-            background: none;
-            border: none;
-            transition: color 0.2s;
+        .modal-body p {
+            line-height: 1.8; color: var(--text-cream); margin-bottom: 30px; font-weight: 300;
         }
-
-        .close-btn:hover {
-            color: var(--neon-pink);
-            text-shadow: 0 0 8px var(--neon-pink);
-        }
-
-        .modal-header span {
-            color: var(--neon-yellow);
-            font-size: 0.9rem;
-            letter-spacing: 2px;
+        
+        .modal-body strong {
+            color: var(--gold-main);
+            font-weight: 400;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
             display: block;
             margin-bottom: 5px;
         }
 
-        .modal-header h2 {
-            font-family: 'Montserrat', sans-serif;
-            color: #fff;
-            text-transform: uppercase;
-            font-size: 1.8rem;
-            border-bottom: 1px solid var(--text-dim);
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .modal-body p {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 25px;
-            color: #ccc;
-        }
-
-        /* --- Forms & Inputs --- */
+        /* --- UPDATED INPUTS --- */
         .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--neon-blue);
-            font-size: 0.85rem;
-            text-transform: uppercase;
+            display: block; color: var(--gold-main); font-family: 'Playfair Display', serif;
+            margin-bottom: 10px; font-style: italic;
         }
 
-        .input-group textarea, .input-group input {
-            width: 100%;
-            background-color: rgba(0,0,0,0.6);
-            border: 1px solid #333;
-            border-left: 3px solid var(--text-dim);
-            color: var(--neon-green);
-            padding: 15px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1rem;
-            margin-bottom: 20px;
-            transition: all 0.3s;
+        textarea, input {
+            width: 100%; 
+            background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid var(--border);
+            padding: 15px; 
+            color: #FFFFFF !important; 
+            font-family: 'Lato', sans-serif;
+            font-size: 1.1rem; 
+            margin-bottom: 20px; 
+            transition: 0.3s;
+        }
+        
+        textarea::placeholder, input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        textarea:focus, input:focus {
+            outline: none; 
+            border-color: var(--gold-main); 
+            background: rgba(0, 0, 0, 0.6);
+            color: #FFFFFF !important;
         }
 
-        .input-group textarea:focus, .input-group input:focus {
-            outline: none;
-            border-color: var(--neon-blue);
-            border-left-color: var(--neon-blue);
-            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.1);
+        /* Validation Error State */
+        .input-error {
+            border-color: var(--error-color) !important;
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+            background: rgba(255, 107, 107, 0.1);
         }
 
-        /* --- Buttons --- */
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
         .modal-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 20px;
-            margin-top: 10px;
+            display: flex; justify-content: flex-end; gap: 20px; margin-top: 20px;
         }
 
         .btn {
-            padding: 12px 30px;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            border: none;
-            position: relative;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-            transition: all 0.2s;
-            letter-spacing: 1px;
+            padding: 12px 30px; border: none; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 2px; font-size: 0.75rem;
+            transition: 0.3s; background: transparent; color: var(--text-muted);
         }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-dim);
-            border: 1px solid var(--text-dim);
-        }
-
-        .btn-secondary:hover {
-            color: #fff;
-            border-color: #fff;
-        }
-
+        .btn:hover { color: var(--text-cream); }
         .btn-primary {
-            background-color: var(--neon-blue);
-            color: #000;
+            background: var(--gold-main); color: #14211C; font-weight: 700;
         }
-
         .btn-primary:hover {
-            background-color: #fff;
-            box-shadow: 0 0 20px var(--neon-blue);
+            background: #F0D065; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
+        /* --- GRAND FINALE OVERLAY --- */
+        .finale-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(20, 33, 28, 0.98);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 2000;
+            opacity: 0; pointer-events: none;
+            transition: opacity 1.5s ease;
         }
-        ::-webkit-scrollbar-track {
-            background: #000;
+        
+        .finale-overlay.visible {
+            opacity: 1; pointer-events: all;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border: 1px solid #000;
+
+        .finale-title {
+            font-family: 'Playfair Display', serif; font-size: 5rem;
+            color: #D4AF37; text-align: center; margin-bottom: 20px;
+            transform: translateY(30px); opacity: 0;
+            transition: all 1s ease 0.5s;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--neon-pink);
+        
+        .finale-subtitle {
+            font-family: 'Lato', sans-serif; font-size: 1.2rem;
+            color: #F2EFE9; text-transform: uppercase; letter-spacing: 5px;
+            transform: translateY(30px); opacity: 0;
+            transition: all 1s ease 1s;
         }
+
+        .finale-overlay.visible .finale-title,
+        .finale-overlay.visible .finale-subtitle {
+            transform: translateY(0); opacity: 1;
+        }
+
+        .finale-btn {
+            margin-top: 50px;
+            padding: 15px 40px;
+            background: transparent; border: 1px solid #D4AF37;
+            color: #D4AF37; font-family: 'Lato', sans-serif;
+            text-transform: uppercase; letter-spacing: 2px;
+            cursor: pointer; opacity: 0; transition: all 0.5s ease 2s;
+        }
+        .finale-btn:hover { background: #D4AF37; color: #000; }
+        .finale-overlay.visible .finale-btn { opacity: 1; }
 
         @media (max-width: 600px) {
-            h1 { font-size: 2rem; }
-            .calendar-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-            .modal-content { padding: 20px; }
+            h1 { font-size: 2.5rem; }
+            .editorial-bg { font-size: 50vw; opacity: 0.03; }
+            .finale-title { font-size: 3rem; }
         }
     </style>
 </head>
 <body>
 
-    <div class="scanlines"></div>
-    <div class="vignette"></div>
+    <div class="spotlight" id="spotlight"></div>
+    <div class="noise"></div>
+    <div class="editorial-bg">2026</div>
 
     <header>
-        <h1>Career 2077</h1> <!-- Стилізована назва -->
-        <p class="subtitle">SYSTEM UPGRADE: 2026 EDITION</p>
+        <h1 id="mainTitle">Карʼєрний Адвент-Календар</h1>
+        <p class="subtitle" id="mainSubtitle">24 дні до нового професійного року</p>
         
-        <div class="progress-wrapper">
-            <div class="progress-bar" id="progressBar"></div>
+        <div class="progress-container">
+            <div class="progress-line-bg"></div>
+            <div class="progress-line-fill" id="progressBar"></div>
+            <div class="progress-text" id="progressText">0 / 24</div>
         </div>
-        <div class="progress-text" id="progressText">SYSTEM LOADING: 0%</div>
     </header>
 
     <main class="calendar-grid" id="calendarGrid">
-        <!-- JS генерує картки тут -->
+        <!-- Cards Generated by JS -->
     </main>
 
     <!-- Modal -->
     <div class="modal-overlay" id="modalOverlay">
         <div class="modal-content">
-            <button class="close-btn" onclick="closeModal()">[x]</button>
+            <span class="modal-day-badge" id="modalDay">Day 01</span>
             <div class="modal-header">
-                <span id="modalDay">DAY_01</span>
-                <h2 id="modalTitle">Завантаження...</h2>
+                <h2 id="modalTitle">Title</h2>
             </div>
             <div class="modal-body">
-                <p id="modalDesc">Опис завдання...</p>
-                <div id="modalInputs"></div>
+                <div id="modalDesc">Description...</div>
+                <div id="modalInputs" style="margin-top: 30px;"></div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal()">CANCEL</button>
-                <button class="btn btn-primary" onclick="completeTask()">EXECUTE</button>
+                <button class="btn" onclick="closeModal()">Close</button>
+                <button class="btn btn-primary" id="completeBtn" onclick="completeTask()">Complete</button>
             </div>
         </div>
     </div>
 
+    <!-- Grand Finale Overlay -->
+    <div class="finale-overlay" id="finaleOverlay">
+        <h1 class="finale-title">2026<br>Твій Рік</h1>
+        <p class="finale-subtitle">Всі завдання виконано</p>
+        <button class="finale-btn" onclick="closeFinale()">Поглянути на шлях</button>
+    </div>
+
     <script>
-        // --- ДАНІ ЗАВДАНЬ (Ті самі, що й раніше) ---
+        // Spotlight
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX; const y = e.clientY;
+            document.getElementById('spotlight').style.setProperty('--x', x + 'px');
+            document.getElementById('spotlight').style.setProperty('--y', y + 'px');
+        });
+
         const tasks = [
-            { day: 1, title: "Поставити кар’єрні цілі", desc: "Запиши три основні професійні цілі, яких хочеш досягти у 2026 році.", inputs: ["Ціль 1", "Ціль 2", "Ціль 3"] },
-            { day: 2, title: "Підсумки року", desc: "Поглянь назад на 2025 рік. Які події принесли найбільші успіхи? Які виклики були найскладнішими?", inputs: ["Ключові успіхи", "Головні уроки"] },
-            { day: 3, title: "Лист із майбутнього", desc: "Напиши собі короткий лист від себе через рік. Опиши, яким/якою ти став/ла.", inputs: ["Привіт, це я з майбутнього..."] },
-            { day: 4, title: "CV-ревізія", desc: "Вибери один пункт у своєму резюме й перепиши його так, щоб він був результатоорієнтованим.", inputs: ["Старе формулювання", "Нове (Result Oriented)"] },
-            { day: 5, title: "Ідеальний робочий день", desc: "Опиши свій ідеальний робочий день: графік, завдання, оточення.", inputs: ["Час та ранок", "Завдання", "Середовище"] },
-            { day: 6, title: "Маркетингове дослідження", desc: "Обери три компанії, які тебе надихають. Досліди їхню культуру.", inputs: ["Компанія 1", "Компанія 2", "Компанія 3"] },
-            { day: 7, title: "Мікро-навчання", desc: "Приділи 30 хвилин освоєнню нового інструмента або AI-промтів.", inputs: ["Навичка/інструмент", "Ключовий інсайт"] },
-            { day: 8, title: "Крок у нетворкінгу", desc: "Подумай про людину, з якою цікаво поспілкуватися. Напиши чернетку повідомлення.", inputs: ["Ім'я контакту", "Чернетка повідомлення"] },
-            { day: 9, title: "Особистий бренд", desc: "Склади свій elevator-pitch — 3–4 речення про те, хто ти як професіонал.", inputs: ["Мій elevator-pitch"] },
-            { day: 10, title: "Інформаційне інтерв’ю", desc: "Підготуй 5 запитань для зустрічі з людиною, яку ти обрав(ла) раніше.", inputs: ["Запитання 1", "Запитання 2", "Запитання 3", "Запитання 4", "Запитання 5"] },
-            { day: 11, title: "Соціальний апгрейд", desc: "Онови профіль LinkedIn. Фото, headline, нові навички.", inputs: ["Статус оновлення"] },
-            { day: 12, title: "Візійна дошка", desc: "Створи moodboard своїх мрій на 2026 рік.", inputs: ["Ключові образи", "Цитати"] },
-            { day: 13, title: "Мотиваційний лист", desc: "Напиши вступний абзац мотиваційного листа для компанії мрії.", inputs: ["Вступний абзац"] },
-            { day: 14, title: "Професійне читання", desc: "Прочитай статтю або послухай подкаст. Випиши інсайти.", inputs: ["Тема", "Інсайт 1", "Інсайт 2"] },
-            { day: 15, title: "Міні-проєкт", desc: "За 30 хвилин зроби щось для портфоліо (схему, текст, код).", inputs: ["Мій проєкт", "Результат"] },
-            { day: 16, title: "Інвентар навичок", desc: "Склади список своїх Hard & Soft skills. Що треба підтягнути?", inputs: ["Навички (Рівень)", "Що підсилити"] },
-            { day: 17, title: "Практика співбесіди", desc: "Метод STAR. Опиши складну ситуацію, яку ти вирішив.", inputs: ["Situation", "Task", "Action", "Result"] },
-            { day: 18, title: "Запит рекомендацій", desc: "Попроси колег залишити відгук на LinkedIn.", inputs: ["Кому напишу", "За який проєкт"] },
-            { day: 19, title: "Джерело натхнення", desc: "TED Talks або книга. Що тебе драйвить?", inputs: ["Джерело", "Дія після перегляду"] },
-            { day: 20, title: "День підтримки", desc: "Зателефонуй ментору або другу-колезі.", inputs: ["Кому дзвоню", "Порада"] },
-            { day: 21, title: "Збір портфоліо", desc: "Структуруй свої кейси в папку або на сайт.", inputs: ["Кейс 1", "Кейс 2", "Де збережено"] },
-            { day: 22, title: "Подяка", desc: "Напиши листи вдячності людям, які допомогли тобі у 2025.", inputs: ["Подяка 1", "Подяка 2", "Подяка 3"] },
-            { day: 23, title: "План 90 днів", desc: "Розпиши кроки на Січень, Лютий та Березень.", inputs: ["Січень", "Лютий", "Березень"] },
-            { day: 24, title: "Фінальна рефлексія", desc: "Підсумки челенджу. Що ти береш у новий рік?", inputs: ["Відкриття", "Ключова ідея", "Святкування"] }
+            { 
+                day: 1, 
+                title: "Поставити кар’єрні цілі", 
+                desc: "<strong>Чому це важливо:</strong><br>Коли ти чесно формулюєш 3 ключові цілі, мозок перестає «стріляти навмання» і починає працювати як навігація. Чіткі цілі дають фільтр для рішень: на які проєкти погоджуватись, куди вкладати час і гроші, а що сміливо відрізати. Це фундамент, на який потім лягають усі кроки року.<br><br><strong>Завдання:</strong><br>Запиши три основні професійні цілі, яких хочеш досягти у 2026 році. Це може бути підвищення, зміна професії або запуск власного проєкту.", 
+                inputs: ["Ціль 1", "Ціль 2", "Ціль 3"] 
+            },
+            { 
+                day: 2, 
+                title: "Підсумки року", 
+                desc: "<strong>Чому це важливо:</strong><br>Без аналізу минулого року легко повторити ті самі помилки ще раз. Підсумки показують, які дії реально спрацювали, а де ти зливала енергію. Це дає тверду опору для рішень: що масштабувати, а що більше не робити взагалі.<br><br><strong>Завдання:</strong><br>Поглянь назад на 2025 рік. Які події принесли найбільші успіхи? Які виклики були найскладнішими? Що навчили ці ситуації? Намалюй лінію часу та відзнач на ній ключові проєкти й уроки.", 
+                inputs: ["Ключові успіхи", "Головні уроки"] 
+            },
+            { 
+                day: 3, 
+                title: "Лист із майбутнього", 
+                desc: "<strong>Чому це важливо:</strong><br>Лист із майбутнього підключає не тільки логіку, а й емоції — ти бачиш себе людиною, якою хочеш стати. Коли образ майбутнього «відчувається», з’являється внутрішня мотивація, а не лише «треба». Це допомагає тримати курс, навіть коли буде лінь або страшно.<br><br><strong>Завдання:</strong><br>Напиши собі короткий лист від себе через рік. Опиши, яким/якою ти став/ла, чим займаєшся, які відчуття переживаєш.", 
+                inputs: ["Привіт, це я з майбутнього..."] 
+            },
+            { 
+                day: 4, 
+                title: "CV-ревізія", 
+                desc: "<strong>Чому це важливо:</strong><br>Ринок бачить тебе через резюме, і якщо в ньому немає результатів, ти втрачаєш десятки можливостей. Переписуючи пункти через призму досягнень, ти вчишся мислити мовою цінності для бізнесу. Це підвищує шанси на інтерв’ю, кращі офери й вищий рівень позицій.<br><br><strong>Завдання:</strong><br>Вибери один пункт у своєму резюме й перепиши його так, щоб він був результатоорієнтованим. Використовуй цифри та факти.", 
+                inputs: ["Старе формулювання", "Нове, орієнтоване на результат"] 
+            },
+            { 
+                day: 5, 
+                title: "Ідеальний робочий день", 
+                desc: "<strong>Чому це важливо:</strong><br>Якщо не розуміти, який робочий день тобі підходить, легко залетіти в роль/компанію, де вигорання гарантується з першого кварталу. Опис ідеального дня — це компас для вибору вакансій, проєктів і форматів роботи. Він допомагає будувати не просто «успішну», а стійку і комфортну кар’єру.<br><br><strong>Завдання:</strong><br>Опиши свій ідеальний робочий день: о котрій починається ранок, які завдання виконуються, в якому середовищі працюєш, які люди поруч і які відчуття всередині.", 
+                inputs: ["Час", "Завдання", "Середовище", "Відчуття"] 
+            },
+            { 
+                day: 6, 
+                title: "Маркетингове дослідження", 
+                desc: "<strong>Чому це важливо:</strong><br>Ти перестаєш мислити «мені б хоч кудись», а починаєш мислити як професіонал, який обирає ринок і роботодавця. Аналіз компаній дає розуміння, де твої цінності й стиль роботи реально матимуть сенс. Це економить роки випадкових переходів і підвищує вірогідність потрапити «у свій» контекст.<br><br><strong>Завдання:</strong><br>Обери три компанії, які тебе надихають, і знайди інформацію про їхні цінності, культуру й позиції. Склади короткий опис для кожної.", 
+                inputs: ["Компанія 1", "Компанія 2", "Компанія 3"] 
+            },
+            { 
+                day: 7, 
+                title: "Мікро-навчання", 
+                desc: "<strong>Чому це важливо:</strong><br>Регулярні 30 хвилин навчання дають більше, ніж рідкісний «глобальний» курс раз на рік. Так ти тримаєш навички в тонусі, оновлюєш інструментарій і не відстаєш від ринку. Саме такі малі, але стабільні інвестиції потім виглядають як «стрімкий професійний ріст».<br><br><strong>Завдання:</strong><br>Приділи 30 хвилин освоєнню нового інструмента або навички, що наблизить тебе до твоєї цілі. Це може бути швидкий урок з Excel, генеративні AI-промти або базові принципи цифрового маркетингу.", 
+                inputs: ["Навичка/інструмент, яку я вивчав(ла)", "Один ключовий інсайт"] 
+            },
+            { 
+                day: 8, 
+                title: "Крок у нетворкінгу", 
+                desc: "<strong>Чому це важливо:</strong><br>Більшість сильних можливостей (офери, проєкти, партнерства) приходять через людей, а не через job-сайти. Один продуманий контакт може з часом вистрілити у нову роль або спільний бізнес. Нетворкінг — це не про нав’язливість, а про будування професійного кола підтримки.<br><br><strong>Завдання:</strong><br>Подумай про людину з твоєї або суміжної сфери, з якою цікаво поспілкуватися. Напиши їй коротке повідомлення.", 
+                inputs: ["Ім'я контакту", "Чернетка повідомлення"] 
+            },
+            { 
+                day: 9, 
+                title: "Особистий бренд", 
+                desc: "<strong>Чому це важливо:</strong><br>Якщо ти сама не можеш за 30 секунд пояснити, хто ти як професіонал, це точно не знатимуть ні рекрутери, ні партнери. Elevator-pitch тренує вміння формулювати свою цінність і позиціонування. Це прямий буст впевненості на співбесідах, нетворкінг-подіях і в переписках.<br><br><strong>Завдання:</strong><br>Склади свій elevator-pitch — 3–4 речення про те, хто ти як професіонал/ка. Включи свої сильні сторони, досвід та цінності.", 
+                inputs: ["Мій elevator-pitch"] 
+            },
+            { 
+                day: 10, 
+                title: "Інформаційне інтерв’ю", 
+                desc: "<strong>Чому це важливо:</strong><br>Такі розмови дають «інсайди з кухні»: реалії професії, рівень зарплат, очікування до ролі, типові помилки. Це дозволяє не витрачати роки на випадкові спроби, а точніше планувати свій шлях. Плюс ти розширюєш коло знайомств із людьми, які вже там, де ти хочеш бути.<br><br><strong>Завдання:</strong><br>Заплануй зустріч із людиною з 8-го дня. Підготуй 5 запитань. *Приклади: «Що вас найбільше приваблює у вашій роботі?», «Які навички є ключовими?», «Які тенденції ви бачите?»*", 
+                inputs: ["Питання 1", "Питання 2", "Питання 3", "Питання 4", "Питання 5"] 
+            },
+            { 
+                day: 11, 
+                title: "Соціальний апгрейд", 
+                desc: "<strong>Чому це важливо:</strong><br>Профіль у LinkedIn — твоя відкрита візитівка для всього світу. Оновлене фото, актуальні описи та активність сигналізують: ти «в грі», з тобою можна говорити про можливості. Це підвищує шанси на вхідні запити від рекрутерів, клієнтів і партнерів.<br><br><strong>Завдання:</strong><br>Онови свій профіль у LinkedIn: зміни фото, додай розділ «Що я вивчаю зараз», приєднайся до тематичної групи. Підкресли, що ти відкритий/а до нових можливостей.", 
+                inputs: ["Оновити фото, додати розділ та групу (Опиши, що зроблено)"] 
+            },
+            { 
+                day: 12, 
+                title: "Візійна дошка", 
+                desc: "<strong>Чому це важливо:</strong><br>Візуалізація допомагає мозку «підтягувати» рішення під обраний образ майбутнього. Дошка мрій працює як щоденне нагадування, заради чого ти робиш кроки й навіщо виходиш із зони комфорту. Це підтримує фокус, коли рутина затягує і хочеться все відкласти.<br><br><strong>Завдання:</strong><br>Створи moodboard у Canva чи іншій програмі. Обери картинки, цитати та кольори, що відображають твої мрії. Розмісти її на видному місці або встанови як заставку.", 
+                inputs: ["Ключові образи", "Надихаючі цитати", "Кольори моєї мрії"] 
+            },
+            { 
+                day: 13, 
+                title: "Чернетка мотиваційного листа", 
+                desc: "<strong>Чому це важливо:</strong><br>Мотиваційний лист — твій шанс відрізнитися серед десятків схожих CV. Коли в тебе є продумана чернетка, ти швидко адаптуєш її під конкретну вакансію й подаєшся першим/ою. Це збільшує шанси потрапити в короткий список і показує тебе як людину, яка вміє чітко аргументувати свою цінність.<br><br><strong>Завдання:</strong><br>Напиши перший абзац мотиваційного листа для вакансії своєї мрії. Опиши свої досягнення й те, як вони співвідносяться з цінностями компанії.", 
+                inputs: ["Перший абзац мого мотиваційного листа"] 
+            },
+            { 
+                day: 14, 
+                title: "Професійне читання", 
+                desc: "<strong>Чому це важливо:</strong><br>Регулярне читання по професійним темам робить тебе цікавішим співрозмовником і сильнішим спеціалістом. Ти отримуєш нові моделі, кейси й аргументи, які можна застосувати в роботі вже завтра. Це те, що з часом конвертується в експертність, а отже — вищі гонорари та довіру.<br><br><strong>Завдання:</strong><br>Знайди статтю або подкаст на актуальну тему. Приділи 15–20 хвилин прочитанню або прослуховуванню й запиши три інсайти: що здивувало, що можна застосувати.", 
+                inputs: ["Тема статті/подкасту", "Інсайт 1 (здивувало)", "Інсайт 2 (можна застосувати)", "Інсайт 3"] 
+            },
+            { 
+                day: 15, 
+                title: "Міні-проєкт", 
+                desc: "<strong>Чому це важливо:</strong><br>Навіть невеликий завершений проєкт важить більше, ніж десятки ідей «у голові». Це конкретний результат, який можна показати в портфоліо, обговорити на інтерв’ю або згадати в CV. До того ж, ти тренуєш навичку доводити справу до кінця в обмежений час.<br><br><strong>Завдання:</strong><br>Вибери маленький проєкт, який можна завершити за 30 хвилин: розроби структуру курсу, підготуй інфографіку або оформи портфоліо-кейс (проблема–рішення–результат).", 
+                inputs: ["Мій міні-проєкт", "Результат за 30 хвилин"] 
+            },
+            { 
+                day: 16, 
+                title: "Інвентар навичок", 
+                desc: "<strong>Чому це важливо:</strong><br>Чіткий список навичок — це твоя персональна «балансова відомість». Ти бачиш, що вже в тебе сильне, а де є прогалини, які заважають наступному кроку в кар’єрі. Це дозволяє точково планувати навчання, а не купувати хаотичні курси «про всяк випадок».<br><br><strong>Завдання:</strong><br>Склади перелік своїх ключових навичок. Познач, які з них хочеш підсилити у 2026 році. Переглянь вакансії мрії, щоб зрозуміти, які навички актуальні.", 
+                inputs: ["Навичка 1 (Рівень)", "Навичка 2 (Рівень)", "Навичка 3 (Рівень)", "Навичка 4 (Рівень)"] 
+            },
+            { 
+                day: 17, 
+                title: "Практика співбесіди", 
+                desc: "<strong>Чому це важливо:</strong><br>Багато кандидатів провалюються не через слабкий досвід, а через те, що не вміють його показати. Метод STAR вчить розповідати про кейси структуровано й переконливо. Це різко підвищує твої шанси виглядати впевненою й професійною на співбесіді.<br><br><strong>Завдання:</strong><br>Вибери типове питання — наприклад, «Розкажіть про випадок, коли ви вирішили складну проблему» — та запиши відповідь за методом STAR (Situation–Task–Action–Result).", 
+                inputs: ["Situation", "Task", "Action", "Result"] 
+            },
+            { 
+                day: 18, 
+                title: "Запити на рекомендації", 
+                desc: "<strong>Чому це важливо:</strong><br>Рекомендації — це соціальний доказ: інші люди підтверджують твою цінність. Гарно прописані відгуки в LinkedIn або листах можуть стати вирішальним фактором між тобою й іншим кандидатом. Плюс ти нагадуєш про себе колишнім колегам, що інколи приводить до нових проєктів.<br><br><strong>Завдання:</strong><br>Знайди двох людей, яким довіряєш, і попроси їх залишити рекомендацію на LinkedIn. Чітко вкажи, за який спільний проєкт ти вдячний/вдячна.", 
+                inputs: ["Ім'я 1", "Спільний проєкт 1", "Ім'я 2", "Спільний проєкт 2"] 
+            },
+            { 
+                day: 19, 
+                title: "Джерело натхнення", 
+                desc: "<strong>Чому це важливо:</strong><br>Надихаючий виступ чи подкаст часто дає один точний інсайт, який змінює кут зору на кар’єру. Це живить внутрішню енергію й нагадує, що інші теж проходили через сумніви та зміни. Коли ти фіксуєш головну думку й наступний крок — натхнення відразу перетворюється на дію.<br><br><strong>Завдання:</strong><br>Переглянь TED-виступ або послухай подкаст, що надихає на професійні зміни (напр., «How to find work you love» Скотта Дінсмора). Запиши головні думки та одну дію, яку зробиш.", 
+                inputs: ["Джерело", "Головна думка", "Моя наступна дія"] 
+            },
+            { 
+                day: 20, 
+                title: "День підтримки", 
+                desc: "<strong>Чому це важливо:</strong><br>Професійний шлях — не соло-гра, а командний вид спорту. Розмова з ментором, другом чи родичем допомагає виговоритися, побачити себе збоку й отримати підсилюючий фідбек. Сильне оточення знижує ризик вигоріти і дає більше сміливості для рішень.<br><br><strong>Завдання:</strong><br>Зателефонуй другу, ментору чи родичу й поділись своїми успіхами за останні 19 днів. Запитай їхню думку та прийми поради. Взаємна підтримка зміцнює зв’язки.", 
+                inputs: ["Кому я зателефоную", "Головна тема розмови", "Одна порада, яку я отримав(ла)"] 
+            },
+            { 
+                day: 21, 
+                title: "Збір портфоліо", 
+                desc: "<strong>Чому це важливо:</strong><br>Портфоліо перетворює абстрактне «я добре працюю» на конкретні кейси «ось проблема, моє рішення і результат». Це мова, яку люблять роботодавці й клієнти. Добре оформлене портфоліо прискорює переговори й підвищує твою переговорну позицію щодо умов та оплати.<br><br><strong>Завдання:</strong><br>Створи або онови своє професійне портфоліо: збери найкращі роботи, додай пояснення (проблема, твоє рішення, результат). Збережи на Google Drive, у Notion чи на власному сайті.", 
+                inputs: ["Проблема", "Моє рішення", "Результат", "Посилання/скріншот"] 
+            },
+            { 
+                day: 22, 
+                title: "Подяка", 
+                desc: "<strong>Чому це важливо:</strong><br>Подяка зміцнює відносини й показує тебе як зрілу, уважну людину, з якою приємно працювати. Люди, яким ти щиро дякуєш, частіше хочуть допомогти ще раз, порадити тебе далі або повернутись із новими можливостями. Це інвестиція в репутацію та людський капітал.<br><br><strong>Завдання:</strong><br>Напиши три листи або повідомлення подяки людям, які допомагали тобі цього року. Згадай конкретні речі, за які ти вдячний/вдячна.", 
+                inputs: ["Подяка 1 (Кому/За що)", "Подяка 2", "Подяка 3"] 
+            },
+            { 
+                day: 23, 
+                title: "План 90 днів", 
+                desc: "<strong>Чому це важливо:</strong><br>Виділити цілі на 90 днів — значить перевести мрію про «успішний 2026» у конкретний операційний план. Така рамка достатньо коротка, щоб тримати фокус, і достатньо довга, щоб побачити реальні зрушення. Це створює відчутний прогрес і дає відчуття контролю над своїм розвитком.<br><br><strong>Завдання:</strong><br>Сплануй перші три місяці 2026 року: визнач одну головну ціль та 3–4 кроки на кожен місяць.", 
+                inputs: ["Січень (Головний крок + підкроки)", "Лютий (Головний крок + підкроки)", "Березень (Головний крок + підкроки)"] 
+            },
+            { 
+                day: 24, 
+                title: "Фінальна рефлексія та святкування", 
+                desc: "<strong>Чому це важливо:</strong><br>Рефлексія закріплює навчання: ти усвідомлюєш, що спрацювало, що про себе відкрила і які стратегії варто повторювати. Святкування навіть маленьких перемог формує звичку помічати свій прогрес, а не тільки «де ще не дотягнула». Це підвищує самооцінку і дає ресурс заходити в новий професійний рік сильніше та спокійніше.<br><br><strong>Завдання:</strong><br>Підведи підсумок календаря: що було найцікавішим, які нові навички освоєно, які висновки про себе зробив/ла. Визнач одну ключову ідею, яку береш у новий рік, і обов'язково відзнач свої досягнення — організуй собі маленьке святкування!", 
+                inputs: ["Найцікавіше відкриття за ці 24 дні", "Ключова ідея, яку я беру у 2026 рік", "Як я відзначу свої досягнення"] 
+            }
         ];
 
-        // --- ЛОГІКА (State Management) ---
         let currentDay = null;
-        let userProgress = JSON.parse(localStorage.getItem('cyberAdventState')) || {};
+        let userProgress = JSON.parse(localStorage.getItem('emeraldUltimateState')) || {};
 
         const grid = document.getElementById('calendarGrid');
         const modalOverlay = document.getElementById('modalOverlay');
+        const completeBtn = document.getElementById('completeBtn');
 
         function init() {
+            // Check if already completed all
+            const completedCount = Object.keys(userProgress).filter(k => userProgress[k].completed).length;
+            if (completedCount === tasks.length) {
+                document.body.classList.add('gold-mode');
+                document.getElementById('mainTitle').innerText = "Кар'єрний Зліт";
+                document.getElementById('mainSubtitle').innerText = "2026 рік твій";
+            }
             renderCalendar();
             updateProgress();
         }
 
         function renderCalendar() {
             grid.innerHTML = '';
-            tasks.forEach(task => {
+            tasks.forEach((task, index) => {
                 const isCompleted = userProgress[task.day] && userProgress[task.day].completed;
                 
                 const card = document.createElement('div');
                 card.className = `day-card ${isCompleted ? 'completed' : ''}`;
                 card.onclick = () => openModal(task.day);
-                
-                // Формат дня з ведучим нулем: 01, 02...
-                const dayDisplay = task.day < 10 ? `0${task.day}` : task.day;
+                card.style.animationDelay = `${index * 0.05}s`; 
 
-                card.innerHTML = `
-                    <div class="day-number">${dayDisplay}</div>
-                    <div class="day-label">NET_ACCESS</div>
-                `;
+                const dayDisplay = task.day < 10 ? `0${task.day}` : task.day;
+                card.innerHTML = `<div class="day-number">${dayDisplay}</div><div class="day-label">OPEN</div>`;
                 grid.appendChild(card);
             });
         }
@@ -547,9 +622,11 @@
             const task = tasks.find(t => t.day === day);
             const savedData = userProgress[day] || {};
 
-            document.getElementById('modalDay').innerText = `DAY_${day < 10 ? '0'+day : day} // PROTOCOL`;
+            document.getElementById('modalDay').innerText = `ГРУДЕНЬ ${day}`;
             document.getElementById('modalTitle').innerText = task.title;
-            document.getElementById('modalDesc').innerText = task.desc;
+            
+            // IMPORTANT: Using innerHTML to render HTML tags in description
+            document.getElementById('modalDesc').innerHTML = task.desc;
             
             const inputsContainer = document.getElementById('modalInputs');
             inputsContainer.innerHTML = '';
@@ -560,15 +637,13 @@
                 const savedValue = savedData.notes ? savedData.notes[index] : '';
                 
                 group.innerHTML = `
-                    <label>> ${label}</label>
-                    <textarea id="input-${index}" placeholder="_введіть дані...">${savedValue}</textarea>
+                    <label>${label}</label>
+                    <textarea id="input-${index}" rows="2" oninput="clearError(this)">${savedValue}</textarea>
                 `;
                 inputsContainer.appendChild(group);
             });
 
-            const btn = document.querySelector('.btn-primary');
-            btn.innerText = savedData.completed ? "UPDATE_DATA" : "EXECUTE_TASK";
-
+            completeBtn.innerText = savedData.completed ? "ОНОВИТИ" : "ЗАВЕРШИТИ";
             modalOverlay.classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -586,41 +661,131 @@
             if (e.target === modalOverlay) closeModal();
         });
 
+        // Validation Helper
+        function clearError(inputElement) {
+            if(inputElement.classList.contains('input-error')) {
+                inputElement.classList.remove('input-error');
+                if(completeBtn.innerText === "ЗАПОВНІТЬ ВСІ ПОЛЯ") {
+                    completeBtn.innerText = "ЗАВЕРШИТИ";
+                }
+            }
+        }
+
+        // --- EFFECT: CHAMPAGNE GOLD CONFETTI ---
+        function triggerConfetti(x, y) {
+            const colors = ['#D4AF37', '#F9E6A5', '#F2EFE9'];
+            const particleCount = 80;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'fixed';
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.width = Math.random() * 8 + 3 + 'px';
+                particle.style.height = Math.random() * 6 + 3 + 'px';
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.zIndex = '9999';
+                particle.style.pointerEvents = 'none';
+                particle.style.borderRadius = '2px';
+                particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 10 + 5;
+                const vx = Math.cos(angle) * velocity;
+                const vy = Math.sin(angle) * velocity - 4;
+                
+                document.body.appendChild(particle);
+
+                let posX = 0;
+                let posY = 0;
+                let time = 0;
+
+                const anim = setInterval(() => {
+                    time += 0.5;
+                    posX += vx;
+                    posY += vy + (0.4 * time * time * 0.1);
+                    
+                    particle.style.transform = `translate(${posX}px, ${posY}px) rotate(${time * 15}deg)`;
+                    particle.style.opacity = 1 - (time / 80);
+
+                    if (time > 80) {
+                        clearInterval(anim);
+                        particle.remove();
+                    }
+                }, 16);
+            }
+        }
+
         function completeTask() {
             if (!currentDay) return;
-
             const task = tasks.find(t => t.day === currentDay);
             const notes = [];
+            let isValid = true;
             
             task.inputs.forEach((_, index) => {
-                const val = document.getElementById(`input-${index}`).value;
-                notes.push(val);
+                const inputEl = document.getElementById(`input-${index}`);
+                const val = inputEl.value.trim();
+                if (val === "") {
+                    inputEl.classList.add('input-error');
+                    isValid = false;
+                }
+                notes.push(val); 
             });
 
-            userProgress[currentDay] = {
-                completed: true,
-                notes: notes
-            };
+            if (!isValid) {
+                completeBtn.innerText = "ЗАПОВНІТЬ ВСІ ПОЛЯ";
+                return;
+            }
 
-            localStorage.setItem('cyberAdventState', JSON.stringify(userProgress));
+            // Valid -> Trigger Effect
+            const rect = completeBtn.getBoundingClientRect();
+            triggerConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
 
-            const btn = document.querySelector('.btn-primary');
-            btn.innerText = "DATA_SAVED";
+            userProgress[currentDay] = { completed: true, notes: notes };
+            localStorage.setItem('emeraldUltimateState', JSON.stringify(userProgress));
+
+            completeBtn.innerText = "ЗБЕРЕЖЕНО";
             
             setTimeout(() => {
                 closeModal();
                 renderCalendar();
                 updateProgress();
-            }, 600);
+                checkGrandFinale(); // Check if all done
+            }, 800);
         }
 
         function updateProgress() {
             const completedCount = Object.keys(userProgress).filter(k => userProgress[k].completed).length;
             const total = tasks.length;
             const percentage = Math.round((completedCount / total) * 100);
-
             document.getElementById('progressBar').style.width = `${percentage}%`;
-            document.getElementById('progressText').innerText = `SYSTEM LOADING: ${percentage}% [${completedCount}/${total}]`;
+            document.getElementById('progressText').innerText = `${percentage}% Завершено`;
+        }
+
+        // --- GRAND FINALE LOGIC ---
+        function checkGrandFinale() {
+            const completedCount = Object.keys(userProgress).filter(k => userProgress[k].completed).length;
+            if (completedCount === tasks.length) {
+                setTimeout(launchFinale, 500);
+            }
+        }
+
+        function launchFinale() {
+            document.getElementById('finaleOverlay').classList.add('visible');
+            // Massive confetti burst
+            triggerConfetti(window.innerWidth/2, window.innerHeight/2);
+            triggerConfetti(window.innerWidth/3, window.innerHeight/3);
+            triggerConfetti(window.innerWidth*0.6, window.innerHeight/3);
+        }
+
+        function closeFinale() {
+            document.getElementById('finaleOverlay').classList.remove('visible');
+            document.body.classList.add('gold-mode');
+            
+            document.getElementById('mainTitle').innerText = "Кар'єрний Зліт";
+            document.getElementById('mainSubtitle').innerText = "2026 рік твій";
+            
+            renderCalendar(); // Re-render to update card colors
         }
 
         init();
